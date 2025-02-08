@@ -1,2 +1,4 @@
-[B]bin/
-[O]obj/
+[Bb]in/
+[Oo]bj/
+
+.idea/
