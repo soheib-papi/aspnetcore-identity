@@ -18,9 +18,28 @@ public class AccountController : ControllerBase
         _userManager = userManager;
     }
 
-    [HttpGet("register")]
-    public IActionResult Register(UserRegisterDto request)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(UserRegisterDto request)
     {
-        return Ok("AccountController is working!");
+        if (!ModelState.IsValid)
+            throw new Exception("Input data is invalid.");
+
+        UserIdentity userIdentity = new UserIdentity()
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            UserName = request.Email,
+            PhoneNumber = request.PhoneNumber,
+        };
+        
+        var result = await _userManager.CreateAsync(userIdentity, request.Password);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+        
+        return Ok(result.Succeeded);
     }
 }
