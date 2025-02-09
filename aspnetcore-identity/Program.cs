@@ -1,4 +1,5 @@
 using aspnetcore_identity.Models;
+using aspnetcore_identity.Models.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

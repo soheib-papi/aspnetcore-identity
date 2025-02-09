@@ -25,7 +25,6 @@
 
     <ItemGroup>
       <Folder Include="Models\Dtos\" />
-      <Folder Include="obj\Debug\net9.0\" />
     </ItemGroup>
 
 </Project>
