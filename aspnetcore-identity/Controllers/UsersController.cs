@@ -25,7 +25,7 @@ public class UsersController: ControllerBase
     }
 
     [HttpGet("get-all-users")]
-    public async Task<IActionResult> GetAllUsers(int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllUsersAsync(int page, int pageSize, CancellationToken cancellationToken)
     {
         var result = await _userManager.Users
             .Skip((page - 1) * pageSize)
@@ -36,12 +36,12 @@ public class UsersController: ControllerBase
     }
     
     [HttpPost("create-user")]
-    public async Task<IResult> CreateUser(UserRegisterDto request, CancellationToken cancellationToken)
+    public async Task<IResult> CreateUser(UserRegisterDto request)
     {
         if (!ModelState.IsValid)
             throw new Exception("Input data is invalid.");
         
-        var result = await _usersServices.CreateUserAsync(request, cancellationToken);
+        var result = await _usersServices.CreateUserAsync(request);
         
         return result;
     }

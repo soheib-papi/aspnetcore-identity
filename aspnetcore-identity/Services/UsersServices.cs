@@ -16,7 +16,7 @@ public class UsersServices: IUsersServices
     }
 
 
-    public async Task<IResult> CreateUserAsync(UserRegisterDto request, CancellationToken cancellationToken)
+    public async Task<IResult> CreateUserAsync(UserRegisterDto request)
     {
         UserIdentity userIdentity = new UserIdentity()
         {
