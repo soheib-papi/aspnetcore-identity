@@ -1,5 +1,6 @@
 ﻿using aspnetcore_identity.Models.Dtos;
 using aspnetcore_identity.Models.Identity;
+using aspnetcore_identity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,43 +13,32 @@ public class AccountController : ControllerBase
     private readonly ILogger<AccountController> _logger;
     private readonly UserManager<UserIdentity> _userManager;
     private readonly SignInManager<UserIdentity> _signInManager;
+    private readonly UsersServices _usersServices;
 
     public AccountController(ILogger<AccountController> logger, 
         UserManager<UserIdentity> userManager, 
-        SignInManager<UserIdentity> signInManager)
+        SignInManager<UserIdentity> signInManager, 
+        UsersServices usersServices)
     {
         _logger = logger;
         _userManager = userManager;
         _signInManager = signInManager;
+        _usersServices = usersServices;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(UserRegisterDto request)
+    public async Task<IResult> Register(UserRegisterDto request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             throw new Exception("Input data is invalid.");
 
-        UserIdentity userIdentity = new UserIdentity()
-        {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Email = request.Email,
-            UserName = request.Email,
-            PhoneNumber = request.PhoneNumber,
-        };
+        var result = await _usersServices.CreateUserAsync(request, cancellationToken);
         
-        var result = await _userManager.CreateAsync(userIdentity, request.Password);
-
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors);
-        }
-        
-        return Ok(result.Succeeded);
+        return result;
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto request)
+    public async Task<IActionResult> Login(LoginDto request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             throw new Exception("Input data is invalid.");

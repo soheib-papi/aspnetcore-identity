@@ -1,10 +1,8 @@
 using aspnetcore_identity.Models;
 using aspnetcore_identity.Models.Identity;
-using Microsoft.AspNetCore.Builder;
+using aspnetcore_identity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +24,8 @@ builder.Services.AddIdentity<UserIdentity, RoleIdentity>(options =>
     })
     .AddEntityFrameworkStores<IdentityDatabaseContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IUsersServices, UsersServices>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
