@@ -13,12 +13,12 @@ public class AccountController : ControllerBase
     private readonly ILogger<AccountController> _logger;
     private readonly UserManager<UserIdentity> _userManager;
     private readonly SignInManager<UserIdentity> _signInManager;
-    private readonly UsersServices _usersServices;
+    private readonly IUsersServices _usersServices;
 
     public AccountController(ILogger<AccountController> logger, 
         UserManager<UserIdentity> userManager, 
         SignInManager<UserIdentity> signInManager, 
-        UsersServices usersServices)
+        IUsersServices usersServices)
     {
         _logger = logger;
         _userManager = userManager;
@@ -27,12 +27,12 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IResult> Register(UserRegisterDto request, CancellationToken cancellationToken)
+    public async Task<IResult> Register(UserRegisterDto request)
     {
         if (!ModelState.IsValid)
             throw new Exception("Input data is invalid.");
 
-        var result = await _usersServices.CreateUserAsync(request, cancellationToken);
+        var result = await _usersServices.CreateUserAsync(request);
         
         return result;
     }

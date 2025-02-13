@@ -1,3 +1,4 @@
+using aspnetcore_identity.Middlewares;
 using aspnetcore_identity.Models;
 using aspnetcore_identity.Models.Identity;
 using aspnetcore_identity.Services;
@@ -6,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 var configuration = builder.Configuration;
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<IdentityDatabaseContext>(p =>
@@ -16,7 +19,7 @@ builder.Services.AddDbContext<IdentityDatabaseContext>(p =>
 
 builder.Services.AddIdentity<UserIdentity, RoleIdentity>(options =>
     {
-        options.Password.RequireDigit = false; 
+        options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireNonAlphanumeric = false;
@@ -32,6 +35,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -43,6 +48,4 @@ app.MapControllers();
 
 app.UseHttpsRedirection();
 
-
 app.Run();
-
