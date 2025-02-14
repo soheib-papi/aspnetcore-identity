@@ -8,9 +8,17 @@ namespace aspnetcore_identity.Controllers;
 [Authorize]
 public class TestController: ControllerBase
 {
-    [HttpGet("get-info")]
-    public IActionResult GetInfo()
+    [Authorize(Roles = "Admin")]
+    [HttpGet("get-info1")]
+    public IActionResult GetInfo1()
     {
-        return Ok("My name is Soheib.");
+        return Ok("My name is Soheib {get-info1}.");
+    }
+    
+    [Authorize(Roles = "Editor")]
+    [HttpGet("get-info2")]
+    public IActionResult GetInfo2()
+    {
+        return Ok("My name is Soheib {get-info2}.");
     }
 }

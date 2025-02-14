@@ -16,15 +16,20 @@ public class UsersController: ControllerBase
     private readonly ILogger<UsersController> _logger;
     private readonly UserManager<UserIdentity> _userManager;
     private readonly IUsersServices _usersServices;
+    private readonly RoleManager<RoleIdentity> _roleManager;
     
-    public UsersController(ILogger<UsersController> logger, UserManager<UserIdentity> userManager, IUsersServices usersServices)
+    public UsersController(ILogger<UsersController> logger, 
+        UserManager<UserIdentity> userManager, 
+        IUsersServices usersServices, 
+        RoleManager<RoleIdentity> roleManager)
     {
         _logger = logger;
         _userManager = userManager;
         _usersServices = usersServices;
+        _roleManager = roleManager;
     }
 
-    [HttpGet("get-all-users")]
+    [HttpGet]
     public async Task<IActionResult> GetAllUsersAsync(int page, int pageSize, CancellationToken cancellationToken)
     {
         var result = await _userManager.Users
@@ -35,7 +40,7 @@ public class UsersController: ControllerBase
         return Ok(result);
     }
     
-    [HttpPost("create-user")]
+    [HttpPost]
     public async Task<IResult> CreateUser(UserRegisterDto request)
     {
         if (!ModelState.IsValid)
@@ -44,5 +49,26 @@ public class UsersController: ControllerBase
         var result = await _usersServices.CreateUserAsync(request);
         
         return result;
+    }
+
+    [HttpPost("{userId}/{roleName}")]
+    public async Task<IActionResult> AddUserToRole(Int64 userId, String roleName)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        
+        if(user == null)
+            return NotFound("User not found");
+
+        var role = await _roleManager.FindByNameAsync(roleName);
+        
+        if(role == null)
+            return NotFound("Role not found");
+        
+        var result = await _userManager.AddToRoleAsync(user, roleName);
+        
+        if(!result.Succeeded)
+            return BadRequest(result.Errors);
+        
+        return Ok();
     }
 }
