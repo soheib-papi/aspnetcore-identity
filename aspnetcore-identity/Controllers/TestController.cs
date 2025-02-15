@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using aspnetcore_identity.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace aspnetcore_identity.Controllers;
@@ -21,4 +23,19 @@ public class TestController: ControllerBase
     {
         return Ok("My name is Soheib {get-info2}.");
     }
+    
+    [AllowAnonymous]
+    [HttpPost("send-email")]
+    public IActionResult SendEmail(
+        string email, 
+        string subject, 
+        string message,
+        CancellationToken cancellationToken,
+        [FromServices] IEmailSender emailSender)
+    {
+        emailSender.SendEmailAsync(email, subject, message, cancellationToken);
+        
+        return Ok();
+    }
+
 }

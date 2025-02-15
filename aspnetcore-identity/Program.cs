@@ -1,6 +1,7 @@
 using aspnetcore_identity.Middlewares;
 using aspnetcore_identity.Models;
 using aspnetcore_identity.Models.Identity;
+using aspnetcore_identity.Models.Settings;
 using aspnetcore_identity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,8 @@ var configuration = builder.Configuration;
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<IdentityDatabaseContext>(p =>
@@ -29,6 +32,7 @@ builder.Services.AddIdentity<UserIdentity, RoleIdentity>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IUsersServices, UsersServices>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
