@@ -66,4 +66,20 @@ public class AccountController : ControllerBase
         await _signInManager.SignOutAsync();
         return Ok();
     }
+    
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail(string userId, string token)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        
+        if (user == null) return BadRequest("Invalid user");
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        if (result.Succeeded)
+        {
+            return Ok("Email confirmed successfully!");
+        }
+
+        return BadRequest("Email confirmation failed");
+    }
 }

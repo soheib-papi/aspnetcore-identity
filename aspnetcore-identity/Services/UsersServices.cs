@@ -8,11 +8,15 @@ public class UsersServices: IUsersServices
 {
     private readonly ILogger<UsersServices> _logger;
     private readonly UserManager<UserIdentity> _userManager;
+    private readonly IEmailSender _emailSender;
 
-    public UsersServices(ILogger<UsersServices> logger, UserManager<UserIdentity> userManager)
+    public UsersServices(ILogger<UsersServices> logger, 
+        UserManager<UserIdentity> userManager, 
+        IEmailSender emailSender)
     {
         _logger = logger;
         _userManager = userManager;
+        _emailSender = emailSender;
     }
 
 
@@ -39,6 +43,12 @@ public class UsersServices: IUsersServices
             return Results.BadRequest(result.Errors);
         }
 
+        var emailConfirmToken = await _userManager.GenerateEmailConfirmationTokenAsync(userIdentity);
+        var confirmationLink = $"https://localhost:7242/api/Account/confirm-email?userId={userIdentity.Id}&token={Uri.EscapeDataString(emailConfirmToken)}";
+
+        await _emailSender.SendEmailAsync(userIdentity.Email, "Confirm your email", $"Click <a href='{confirmationLink}'>here</a> to confirm your email.",
+            CancellationToken.None);
+        
         return Results.Ok(result);
     }
 }
