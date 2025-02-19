@@ -14,16 +14,19 @@ public class AccountController : ControllerBase
     private readonly UserManager<UserIdentity> _userManager;
     private readonly SignInManager<UserIdentity> _signInManager;
     private readonly IUsersServices _usersServices;
+    private readonly IEmailSender _emailSender;
 
     public AccountController(ILogger<AccountController> logger, 
         UserManager<UserIdentity> userManager, 
         SignInManager<UserIdentity> signInManager, 
-        IUsersServices usersServices)
+        IUsersServices usersServices, 
+        IEmailSender emailSender)
     {
         _logger = logger;
         _userManager = userManager;
         _signInManager = signInManager;
         _usersServices = usersServices;
+        _emailSender = emailSender;
     }
 
     [HttpPost("register")]
@@ -82,6 +85,35 @@ public class AccountController : ControllerBase
 
         return BadRequest("Email confirmation failed");
     }
-    
-    
+
+    [HttpPost("forget-password-token")]
+    public async Task<IActionResult> GetForgetPasswordTokenAsync(ForgetPasswordDto request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest("Input data is invalid.");
+        
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        
+        if (user == null) 
+            return BadRequest("Invalid user");
+        
+        var isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+        if(!isEmailConfirmed)
+            return BadRequest("Email is not confirmed.");
+        
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        
+        var confirmationLink = $"https://localhost:7242/api/Account/reset-password?userId={user.Id}&token={Uri.EscapeDataString(token)}";
+
+        await _emailSender.SendEmailAsync(user.Email!, "Your password reset link", $"Your UserId={user.Id}\nToken={token}",
+            CancellationToken.None);
+        
+        return Ok();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPasswordAsync(long userId, string token)
+    {
+        
+    }
 }
