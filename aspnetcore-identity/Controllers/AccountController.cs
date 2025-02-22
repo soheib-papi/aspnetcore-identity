@@ -132,4 +132,49 @@ public class AccountController : ControllerBase
         
         return Ok();
     }
+
+    [Authorize]
+    [HttpPost("set-mobile-number")]
+    public async Task<IActionResult> SetMobileNumberAsync(SetMobileNumberRequest request)
+    {
+        if(!ModelState.IsValid)
+            return BadRequest("Input data is invalid.");
+        
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        
+        if(user == null)
+            return BadRequest("Invalid user");
+        
+        IdentityResult? result = await _userManager.SetPhoneNumberAsync(user, request.MobileNumber);
+        
+        string code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.MobileNumber);
+        
+        //TODO: Implement Sms service and send code via sms to user's phone number
+        
+        return Ok(code);
+    }
+
+    [Authorize]
+    [HttpPost("verify-mobile-number")]
+    public async Task<IActionResult> VerifyMobileNumberAsync(VerifyMobileNumberRequest request)
+    {
+        if(!ModelState.IsValid)
+            return BadRequest("Input data is invalid.");
+        
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        
+        if(user == null)
+            return BadRequest("Invalid user");
+        
+        bool isVerified = await _userManager.VerifyChangePhoneNumberTokenAsync(user, request.Code, request.MobileNumber);
+        
+        if(!isVerified)
+            return BadRequest("Operation failed.");
+        
+        IdentityResult? result = await _userManager.SetPhoneNumberAsync(user, request.MobileNumber);
+        user.PhoneNumberConfirmed = isVerified;
+        await _userManager.UpdateAsync(user);
+        
+        return Ok(result.Succeeded);
+    }
 }
