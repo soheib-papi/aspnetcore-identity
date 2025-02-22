@@ -112,8 +112,21 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPasswordAsync(long userId, string token)
+    public async Task<IActionResult> ResetPasswordAsync(ResetPasswordDto request)
     {
+        if(!ModelState.IsValid)
+            return BadRequest("Input data is invalid.");
         
+        UserIdentity? user = await _userManager.FindByIdAsync(request.UserId.ToString());
+        
+        if(user == null)
+            return BadRequest("Invalid user");
+        
+        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+        
+        if(!result.Succeeded)
+            return BadRequest("Operation failed.");
+        
+        return Ok();
     }
 }
