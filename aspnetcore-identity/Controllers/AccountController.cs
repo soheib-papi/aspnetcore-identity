@@ -1,6 +1,7 @@
 ﻿using aspnetcore_identity.Models.Dtos;
 using aspnetcore_identity.Models.Identity;
 using aspnetcore_identity.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,6 +87,7 @@ public class AccountController : ControllerBase
         return BadRequest("Email confirmation failed");
     }
 
+    [Authorize]
     [HttpPost("forget-password-token")]
     public async Task<IActionResult> GetForgetPasswordTokenAsync(ForgetPasswordDto request)
     {
@@ -111,6 +113,7 @@ public class AccountController : ControllerBase
         return Ok();
     }
 
+    [Authorize]
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPasswordAsync(ResetPasswordDto request)
     {
